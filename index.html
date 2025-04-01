@@ -39,6 +39,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const storeName = urlParams.get('store') || "";
 
+        if (!storeName) {
+          status.textContent = "此 QRCode 缺少門市資訊（?store=xxx），請重新掃描。";
+          return;
+        }
+
         status.textContent = "位置取得成功，正在傳送...";
 
         await fetch("https://script.google.com/macros/s/AKfycby4gjn-wUOXpInzzDYvb06pvqeEVDfVjLpcod2WhSbvhrIxNGxlFldwc3z1pCXPe7O4vg/exec", {
@@ -56,3 +61,4 @@
   </script>
 </body>
 </html>
+
