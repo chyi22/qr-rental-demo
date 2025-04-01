@@ -29,10 +29,15 @@
       }
 
       status.textContent = "取得定位中...";
+
       navigator.geolocation.getCurrentPosition(async position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         const time = new Date().toISOString();
+
+        // 從網址抓 store 參數（store=門市全名）
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeName = urlParams.get('store') || "";
 
         status.textContent = "位置取得成功，正在傳送...";
 
@@ -40,7 +45,7 @@
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, lat, lng, time })
+          body: JSON.stringify({ username, lat, lng, time, storeName })
         });
 
         status.textContent = "已送出紀錄，感謝您！";
