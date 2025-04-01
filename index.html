@@ -33,7 +33,13 @@
       navigator.geolocation.getCurrentPosition(async position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        const time = new Date().toISOString();
+
+        // ✅ 轉換為台灣時間（UTC+8）
+        const now = new Date();
+        const time = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+          .toISOString()
+          .replace('T', ' ')
+          .substring(0, 19);
 
         // 從網址抓 store 參數（store=門市全名）
         const urlParams = new URLSearchParams(window.location.search);
@@ -61,4 +67,3 @@
   </script>
 </body>
 </html>
-
