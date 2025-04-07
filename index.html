@@ -7,19 +7,43 @@
 </head>
 <body>
   <h2>QR Code 掃碼租借紀錄</h2>
-  <p>請輸入您的姓名：</p>
-  <input type="text" id="username" placeholder="租借人名稱" />
-  <button onclick="getLocation()">送出紀錄</button>
+  <div>
+    <p><strong>掃描門市：</strong> <span id="storeInfo">讀取中...</span></p>
+  </div>
 
+  <div>
+    <label for="employeeId">請輸入員工編號：</label>
+    <input type="text" id="employeeId" placeholder="員工編號" />
+  </div>
+  <div>
+    <p><strong>姓名：</strong> <span id="empName"></span></p>
+    <p><strong>部門：</strong> <span id="empDept"></span></p>
+    <p><strong>職稱：</strong> <span id="empTitle"></span></p>
+  </div>
+
+  <button onclick="submitRecord()">送出紀錄</button>
   <p id="status"></p>
 
   <script>
-    async function getLocation() {
-      const status = document.getElementById('status');
-      const username = document.getElementById('username').value.trim();
+    let storeCode = "";
+    let storeName = "";
 
-      if (!username) {
-        status.textContent = "請先輸入租借人名稱";
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const storeParam = params.get('store') || "";
+
+      storeCode = storeParam.substring(0, 3);
+      storeName = storeParam.substring(3);
+
+      document.getElementById('storeInfo').textContent = `${storeCode} ${storeName}`;
+    };
+
+    async function submitRecord() {
+      const status = document.getElementById('status');
+      const employeeId = document.getElementById('employeeId').value.trim();
+
+      if (!employeeId) {
+        status.textContent = "請輸入員工編號";
         return;
       }
 
@@ -33,30 +57,15 @@
       navigator.geolocation.getCurrentPosition(async position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        const time = new Date().toISOString();
 
-        // ✅ 轉換為台灣時間（UTC+8）
-        const now = new Date();
-        const time = new Date(now.getTime() + 8 * 60 * 60 * 1000)
-          .toISOString()
-          .replace('T', ' ')
-          .substring(0, 19);
+        status.textContent = "正在送出...";
 
-        // 從網址抓 store 參數（store=門市全名）
-        const urlParams = new URLSearchParams(window.location.search);
-        const storeName = urlParams.get('store') || "";
-
-        if (!storeName) {
-          status.textContent = "此 QRCode 缺少門市資訊（?store=xxx），請重新掃描。";
-          return;
-        }
-
-        status.textContent = "位置取得成功，正在傳送...";
-
-        await fetch("https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec", {
+        await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, lat, lng, time, storeName })
+          body: JSON.stringify({ storeCode, employeeId, lat, lng, time })
         });
 
         status.textContent = "已送出紀錄，感謝您！";
