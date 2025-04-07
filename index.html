@@ -44,7 +44,7 @@
       const empId = document.getElementById('employeeId').value.trim();
       if (!empId) return;
 
-      fetch(`https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec?empId=${empId}`)
+      fetch(`https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec?empId=${encodeURIComponent(empId)}`)
         .then(res => res.json())
         .then(data => {
           empName = data.name || "";
@@ -70,6 +70,11 @@
         return;
       }
 
+      if (!empName || empName === "查無資料") {
+        status.textContent = "查無此員工，請確認員編輸入正確";
+        return;
+      }
+
       if (!navigator.geolocation) {
         status.textContent = "此瀏覽器不支援定位功能。";
         return;
@@ -91,7 +96,11 @@
           body: JSON.stringify({ storeCode, storeName, employeeId, empName, empDept, empTitle, lat, lng, time })
         });
 
-        status.textContent = "已送出紀錄，感謝您！";
+        status.textContent = "✅ 已送出紀錄，感謝您！";
+        document.getElementById('employeeId').value = "";
+        document.getElementById('empName').textContent = "";
+        document.getElementById('empDept').textContent = "";
+        document.getElementById('empTitle').textContent = "";
       }, () => {
         status.textContent = "無法取得您的位置，請確認已允許定位權限。";
       });
@@ -99,5 +108,4 @@
   </script>
 </body>
 </html>
-
 
