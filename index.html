@@ -14,7 +14,14 @@
 
   <div>
     <label for="employeeId">請輸入員工編號：</label>
-    <input type="text" id="employeeId" placeholder="員工編號" oninput="fetchEmployeeInfo()" />
+    <input 
+      type="text" 
+      id="employeeId" 
+      placeholder="員工編號" 
+      inputmode="numeric" 
+      pattern="\d*" 
+      oninput="fetchEmployeeInfo()" 
+    />
   </div>
   <div>
     <p><strong>姓名：</strong> <span id="empName"></span></p>
@@ -31,6 +38,7 @@
     let empName = "";
     let empDept = "";
     let empTitle = "";
+    let isEmpValid = false; // 是否查到正確員工
 
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
@@ -44,17 +52,23 @@
       const empId = document.getElementById('employeeId').value.trim();
       if (!empId) return;
 
+      isEmpValid = false;
+
       fetch(`https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec?empId=${encodeURIComponent(empId)}`)
         .then(res => res.json())
         .then(data => {
           empName = data.name || "";
           empDept = data.dept || "";
           empTitle = data.title || "";
+
+          if (empName) isEmpValid = true;
+
           document.getElementById('empName').textContent = empName || "查無資料";
           document.getElementById('empDept').textContent = empDept;
           document.getElementById('empTitle').textContent = empTitle;
         })
         .catch(() => {
+          isEmpValid = false;
           document.getElementById('empName').textContent = "查詢錯誤";
           document.getElementById('empDept').textContent = "";
           document.getElementById('empTitle').textContent = "";
@@ -66,28 +80,28 @@
       const employeeId = document.getElementById('employeeId').value.trim();
 
       if (!employeeId) {
-        status.textContent = "請輸入員工編號";
+        status.textContent = "❗請輸入員工編號";
         return;
       }
 
-      if (!empName || empName === "查無資料") {
-        status.textContent = "查無此員工，請確認員編輸入正確";
+      if (!isEmpValid) {
+        status.textContent = "❗查無此員工，請確認員編輸入正確";
         return;
       }
 
       if (!navigator.geolocation) {
-        status.textContent = "此瀏覽器不支援定位功能。";
+        status.textContent = "❗此瀏覽器不支援定位功能";
         return;
       }
 
-      status.textContent = "取得定位中...";
+      status.textContent = "📍 取得定位中...";
 
       navigator.geolocation.getCurrentPosition(async position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         const time = new Date().toISOString();
 
-        status.textContent = "正在送出...";
+        status.textContent = "📤 正在送出...";
 
         await fetch("https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec", {
           method: "POST",
@@ -102,10 +116,9 @@
         document.getElementById('empDept').textContent = "";
         document.getElementById('empTitle').textContent = "";
       }, () => {
-        status.textContent = "無法取得您的位置，請確認已允許定位權限。";
+        status.textContent = "❗無法取得您的位置，請確認已允許定位權限";
       });
     }
   </script>
 </body>
 </html>
-
