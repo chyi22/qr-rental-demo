@@ -7,14 +7,16 @@
 </head>
 <body>
   <h2>QR Code 掃碼租借紀錄</h2>
+
   <div>
     <p><strong>掃描門市：</strong> <span id="storeInfo">讀取中...</span></p>
   </div>
 
   <div>
     <label for="employeeId">請輸入員工編號：</label>
-    <input type="text" id="employeeId" placeholder="員工編號" />
+    <input type="text" id="employeeId" placeholder="員工編號" oninput="fetchEmployeeInfo()" />
   </div>
+
   <div>
     <p><strong>姓名：</strong> <span id="empName"></span></p>
     <p><strong>部門：</strong> <span id="empDept"></span></p>
@@ -31,12 +33,26 @@
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
       const storeParam = params.get('store') || "";
-
       storeCode = storeParam.substring(0, 3);
       storeName = storeParam.substring(3);
-
       document.getElementById('storeInfo').textContent = `${storeCode} ${storeName}`;
     };
+
+    function fetchEmployeeInfo() {
+      const empId = document.getElementById('employeeId').value.trim();
+      if (!empId) return;
+
+      const demoData = {
+        "03192": { name: "陳威森", dept: "設計管理組", title: "001-設計總監" },
+        "03645": { name: "王子鳴", dept: "設計管理組", title: "003-主任設計師" },
+        "03500": { name: "董安芸", dept: "設計管理組", title: "004-設計師" }
+      };
+
+      const info = demoData[empId];
+      document.getElementById('empName').textContent = info ? info.name : "查無資料";
+      document.getElementById('empDept').textContent = info ? info.dept : "";
+      document.getElementById('empTitle').textContent = info ? info.title : "";
+    }
 
     async function submitRecord() {
       const status = document.getElementById('status');
@@ -65,7 +81,7 @@
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storeCode, storeName, employeeId, lat, lng, time })
+          body: JSON.stringify({ storeCode, employeeId, lat, lng, time })
         });
 
         status.textContent = "已送出紀錄，感謝您！";
@@ -76,3 +92,4 @@
   </script>
 </body>
 </html>
+
