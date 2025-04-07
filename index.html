@@ -61,11 +61,11 @@
 
         status.textContent = "正在送出...";
 
-        await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbyS7_6f2CdGtzFNQMH6SKxPDPYaiv2y0N7wpWL_FT1y0MBihEgl-cMh2zonAGbZ_IPNig/exec", {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storeCode, employeeId, lat, lng, time })
+          body: JSON.stringify({ storeCode, storeName, employeeId, lat, lng, time })
         });
 
         status.textContent = "已送出紀錄，感謝您！";
